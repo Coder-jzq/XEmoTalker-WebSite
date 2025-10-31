@@ -1,0 +1,1712 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>Multimodal Fine-grained Context Interaction Graph Modeling for Conversational Speech Synthesis</title>
+		<link type="text/css" href="./css/basic.css" rel="stylesheet">
+		<link type="text/css" href="./css/index.css" rel="stylesheet">
+		<link type="text/css" href="./css/bootstrap.min.css" rel="stylesheet">
+		<script type='text/javascript' src="./js/jquery-3.3.1.min.js"></script>
+		<script type='text/javascript' src="./js/index.js"></script>
+		
+		<style>
+		    .toggle-content {
+		      display: none; /* 默认隐藏内容 */
+		      margin-top: 10px;
+		    }
+		    .toggle-button {
+		      cursor: pointer;
+		      background-color: #007bff;
+		      color: white;
+		      border: none;
+		      padding: 5px 10px;
+		      border-radius: 3px;
+		      font-size: 14px;
+		    }
+		    .toggle-button:hover {
+		      background-color: #0056b3;
+		    }
+		    table {
+		      width: 100%;
+		      border-collapse: collapse;
+		      margin-top: 10px;
+		    }
+		    th, td {
+		      border: 1px solid #ccc;
+		      padding: 8px;
+		      text-align: center;
+		    }
+			
+			.emo-container {
+			    padding: 20px 2rem;
+			    font-family: 'Segoe UI', sans-serif;
+			    font-size: 13px;
+			    color: #333;
+				background: #f9f9f9;
+				margin-bottom: 2rem;
+				border-radius: 5px;
+			  }
+			
+			  .emo-title {
+			    font-weight: bold;
+				color: #2475cc;
+				font-size: 1.2rem;
+				padding: 0rem 2rem;
+				text-align: center;
+			  }
+			
+			  .emo-row {
+			    display: flex;
+			    flex-wrap: wrap;     
+			    gap: 16px;
+			    justify-content: space-between;
+			  }
+			
+			  .emo-block {
+			    flex: 1 1 calc(14.28% - 16px); 
+			    min-width: 110px;           
+			    max-width: 200px;
+			    position: relative;
+			  }
+			
+			  .emo-label {
+			    text-align: center;
+			    margin-bottom: 6px;
+			    font-weight: 500;
+			  }
+			
+			  .emo-range-wrapper {
+			    position: relative;
+			    height: 36px;
+			    margin-bottom: 4px;
+			  }
+			
+			  .emo-range1 {
+			    -webkit-appearance: none;
+			    appearance: none;
+			    width: 100%;
+			    height: 6px;
+			    border-radius: 5px;
+			    background: #e0e0e0;
+			    outline: none;
+			    position: absolute;
+			    top: 20px;
+			    left: 0;
+			  }
+			
+			  .emo-range1::-webkit-slider-thumb {
+			    -webkit-appearance: none;
+			    width: 14px;
+			    height: 14px;
+			    border-radius: 50%;
+			    background: #1e90ff;
+				
+			    position: relative;
+			    z-index: 5;
+			  }
+			  
+			  .emo-range2 {
+			    -webkit-appearance: none;
+			    appearance: none;
+			    width: 100%;
+			    height: 6px;
+			    border-radius: 5px;
+			    background: #e0e0e0;
+			    outline: none;
+			    position: absolute;
+			    top: 20px;
+			    left: 0;
+			  }
+			
+			  .emo-range2::-webkit-slider-thumb {
+			    -webkit-appearance: none;
+			    width: 14px;
+			    height: 14px;
+			    border-radius: 50%;
+			    background: #909090;
+				
+			    position: relative;
+			    z-index: 5;
+			  }
+			  .emo-value-float {
+			    position: absolute;
+			    top: -2px;
+			    font-size: 12px;
+			    color: #1e90ff;
+			    font-weight: bold;
+			    transform: translateX(-50%);
+			    pointer-events: none;
+			    z-index: 10;
+			  }
+			
+			  .emo-side-values {
+			    display: flex;
+			    justify-content: space-between;
+			    font-variant-numeric: tabular-nums;
+			    font-size: 12px;
+			    color: #666;
+			  }
+		  </style>
+		  
+		  <script>
+		    // 通用表格展开/折叠功能
+		    function toggleTable(tableId) {
+		      const table = document.getElementById(tableId);
+		      const button = document.querySelector(`button[onclick="toggleTable('${tableId}')"]`);
+		      if (table.style.display === 'none' || table.style.display === '') {
+		        table.style.display = 'block';
+		        button.textContent = button.textContent.replace('Show', 'Hide');
+		      } else {
+		        table.style.display = 'none';
+		        button.textContent = button.textContent.replace('Hide', 'Show');
+		      }
+		    }
+		  </script>
+		
+	</head>
+	<body>
+		<div class="main">
+			<div class="top-img">
+			    <img src="./img/banner.jpg" alt="Banner Image" />
+			</div>
+			
+			
+			<!-- 索引区域，放置在 Banner 下方 -->
+			<div class="toc">
+			    <h2>
+			        Table of Contents <span>(click to jump)</span>
+			    </h2>
+			    <ol>
+			        <li><a href="#abstract">1. Abstract</a></li>
+			        <li><a href="#architecture">2. Model Architecture</a></li>
+			        <li><a href="#comparison">3. Comparison with SOTA CSS Methods</a></li>
+			        <li><a href="#mixed-emo">4. Mixed Emotion Controllability</a></li>
+			    </ol>
+			</div>
+
+			
+			<div class="content">
+				<div class="section author">
+				</div>
+				<div class="section" id="abstract">
+					<div class="section-title">1. Abstract</div>
+					<div class="section-content abstract">
+						Conversational Speech Synthesis (CSS) seeks to generate target utterances within a user-agent’s dialogue environment, endowing them with human-like emotional prosody. In real-world conversational scenarios, however, human emotional expression is often complex and blended (such as crying tears of joy). Existing emotional CSS models typically assume that each utterance in the dialogue history carries only a single emotion, and on this basis, they predict a single emotional label for the target utterance. This approach overlooks the nuanced control of mixed emotions, limiting the agent’s ability to synthesize speech with the emotional richness characteristic of human communication. To address the above issues, we propose a novel CSS system with the ability to simultaneously understand and express mixed emotions, termed  XEmoTalker. Specifically, we first train a Mixed Emotion Expert, which effectively decouples the seven basic emotions and accurately extracts the mixed emotion distribution (XEmoDist) from a speech. Then, we propose a Hypergraph-based Contextual Mixed Emotion Understanding scheme. This scheme constructs carefully designed homogeneous and heterogeneous hyperedges to model the high-order relationships of multi-source attributes in dialogue history, such as speaker, text, speech, and XEmoDist, to comprehensively understand the mixed emotional context of the dialogue history and accurately predict the XEmoDist of the target utterance. Finally, we design a Mixed Emotion–guided Conversational Speech Expression module, which combines the predicted XEmoDist of the target utterance, the dialogue context, and the target speaker condition constraint to synthesize anthropomorphic emotional speech. Experiments on three benchmarking datasets, which include English and Chinese languages, show that XEmoTalker synthesizes speech with greater mixed emotional expressiveness compared to baseline methods. The code and demos are available at: 
+						<a href="https://github.com/AI-S2-Lab/XEmoTalker">https://github.com/AI-S2-Lab/XEmoTalker</a>.
+					</div>
+				</div>
+				
+				<div class="section" id="architecture">
+					<div class="section-title">2. Model Architecture</div>
+					<div class="section-content model">
+						<img src="img/XEmoTalker.png" alt="" class="model-img">
+						
+						<p style="padding-top: 1rem; color: #a1a1a1; font-size: 1rem; text-align: center;">Figure 1: The overview of XEmoTalker consists of Hypergraph-based Contextual Mixed Emotion Understanding and Mixed Emotion–guided Conversational Speech Expression.</p>
+					</div>
+				</div>
+				
+				<div class="section" id="comparison">
+					<div class="section-title">3. Comparison with SOTA CSS Methods</div>
+					<div class="section-content experiments">
+						<!-- We develop four neural TTS systems for a  -->
+						<strong>Comparative Experiment:</strong>
+						</br> 1) <b>BaseCSS</b> introduces a text coarse-grained context encoder to model the dialogue history, aiming to improve the quality of synthesized speech. <a href="https://ieeexplore.ieee.org/abstract/document/9383460" style="color: #1d5da4;">[PAPER]</a>
+						</br> 2) <b>M²-CTTS</b> proposes a multi-scale, multi-modal context encoder to jointly model both coarse-grained and fine-grained features of the text and speech modalities in multimodal dialogue history, aiming to enhance the prosody of synthesized speech. <a href="https://ieeexplore.ieee.org/abstract/document/10096905" style="color: #1d5da4;">[PAPER]</a>
+						</br> 3) <b>CONCSS</b> incorporates a negative sample enhancement sampling strategy into multimodal dialogue history modeling to improve the interpretability and prosody sensitivity of context representations, thereby enhancing the prosodic expressiveness of synthesized speech. <a href="xxx" style="color: #1d5da4;">[PAPER]</a>
+						</br> 4) <b>MSRGCN-CSS</b> introduces a context modeling scheme based on a multi-scale relational graph convolutional network to capture the multi-scale influences of multimodal dialogue history on speaking style, aiming to enhance the speaking style of synthesized speech. <a href="xxx" style="color: #1d5da4;">[PAPER]</a>
+						</br> 5) <b>ECSS</b> introduces a context modeling scheme based on multi-source knowledge heterogeneous graphs to jointly model speech, text, emotion, emotion intensity, and speaker attributes in dialogue history, enhancing the emotional prediction for target utterances and improving the emotional expressiveness of synthesized speech. <a href="xxx" style="color: #1d5da4;">[PAPER]</a>
+						</br> 6) <b>I³-CSS</b> proposes an utterance-level intra-modal and inter-modal context interaction modeling scheme to learn both intra-modal and inter-modal interactions between the semantics and prosody of multimodal dialogue history and those of the target utterance, aiming to improve the prosody performance of synthesized speech. <a href="xxx" style="color: #1d5da4;">[PAPER]</a>
+						<strong style="color:#d9534f;">Note:</strong> 我们在分别在两个英文数据集xxx，一个中文数据集比较xxx。
+						
+					</div>
+					<div class="section-content ">
+						<div class="subsection-exp-2">
+							
+							<!-- 一句话分割 -->
+							<div class="module-content">
+								<span class="note">
+								  <b>Sample 1: </b>I've said that I've got a problem with the circus. I'm not kidding. 
+								  <span style="float: right; color: #6b7280;">(Source: DailyTalk)</span>
+								</span>
+								<!-- 情感 - s -->
+								<p class="emo-title">EmoDist</p>
+								<div class="emo-container">	
+								  <div class="emo-row">
+								    <!-- 一个块代表一个情感 -->
+								    <div class="emo-block">
+								      <div class="emo-label">Happy</div>
+								      <div class="emo-range-wrapper">
+								        <div class="emo-value-float" style="left: 5%; color: #909090; ">0.00</div>
+								        <input type="range" class="emo-range2" value="0" disabled>
+								      </div>
+								      <div class="emo-side-values"><span>0.00</span><span>1.00</span></div>
+								    </div>
+								    <div class="emo-block">
+								      <div class="emo-label">Sad</div>
+								      <div class="emo-range-wrapper">
+								        <div class="emo-value-float" style="left: 85%;">0.89</div>
+								        <input type="range" class="emo-range1" value="89" disabled>
+								      </div>
+								      <div class="emo-side-values"><span>0.00</span><span>1.00</span></div>
+								    </div>
+								    <div class="emo-block">
+								      <div class="emo-label">Anger</div>
+								      <div class="emo-range-wrapper">
+								        <div class="emo-value-float" style="left: 91%;">0.99</div>
+								        <input type="range" class="emo-range1" value="99" disabled>
+								      </div>
+								      <div class="emo-side-values"><span>0.00</span><span>1.00</span></div>
+								    </div>
+								    <div class="emo-block">
+								      <div class="emo-label">Disgust</div>
+								      <div class="emo-range-wrapper">
+								        <div class="emo-value-float" style="left: 5%; color: #909090; ">0.00</div>
+								        <input type="range" class="emo-range2" value="0" disabled>
+								      </div>
+								      <div class="emo-side-values"><span>0.00</span><span>1.00</span></div>
+								    </div>
+								    <div class="emo-block">
+								      <div class="emo-label">Fear</div>
+								      <div class="emo-range-wrapper">
+								        <div class="emo-value-float" style="left: 5%; color: #909090; ">0.00</div>
+								        <input type="range" class="emo-range2" value="0" disabled>
+								      </div>
+								      <div class="emo-side-values"><span>0.00</span><span>1.00</span></div>
+								    </div>
+								    <div class="emo-block">
+								      <div class="emo-label">Surprise</div>
+								      <div class="emo-range-wrapper">
+								        <div class="emo-value-float" style="left: 5%; color: #909090; ">0.00</div>
+								        <input type="range" class="emo-range2" value="0" disabled>
+								      </div>
+								      <div class="emo-side-values"><span>0.00</span><span>1.00</span></div>
+								    </div>
+								    <div class="emo-block">
+								      <div class="emo-label">Neutral</div>
+								      <div class="emo-range-wrapper">
+								        <div class="emo-value-float" style="left: 5%; color: #909090; ">0.00</div>
+								        <input type="range" class="emo-range2" value="0" disabled>
+								      </div>
+								      <div class="emo-side-values"><span>0.00</span><span>1.00</span></div>
+								    </div>
+								  </div>
+								</div>
+								<!-- 情感 - d -->
+								
+								<button class="toggle-button" onclick="toggleTable('tab1')">Show Conversation history 1</button>
+								<div id="tab1" class="toggle-content">
+								
+									<table id="table_4">
+										<thead>
+											<colgroup>
+											   <col width=10%></col>
+											   <col width=25%></col>
+											   <col width=20%></col>
+											</colgroup>
+											<tr>
+											  <th colspan="1" style="text-align: center"><strong>Conversation history</strong></th>
+											  <th colspan="1" style="text-align: center"><strong>text</strong></th>
+											  <th colspan="1" style="text-align: center"><strong>speech</strong></th>
+											</tr>
+										</thead>
+										<tbody>
+											<tr>
+												<td style="text-align: center">1<sup>th</sup></td>
+												<td style="text-align: center">What type of music do you like to listen to?</td>
+												<td style="text-align: center"><audio src="./audio/history/2394/0_0_d2394.wav" controls="" preload=""></audio></td>
+											</tr>
+											<!-- ... -->
+										</tbody>
+									</table>
+								</div>
+							
+							</div>
+							<div class="module-content">
+								<table id="table_4">
+									<thead>
+										<colgroup>
+										   <col></col>
+										</colgroup>
+										<tr>
+										  <th colspan="1" style="text-align: center"><strong>Comparative</strong></th>
+										</tr>
+									</thead>
+								</table>
+								<table id="table_4">
+									<thead>
+										<colgroup>
+										   <col width=15%></col>
+										   <col width=25%></col>
+										   <col width=20%></col>
+										   <col width=20%></col>
+										   <col width=20%></col>
+										   <col width=20%></col>
+										   <col width=20%></col>
+										   <col width=20%></col>
+										   <col width=20%></col>
+										</colgroup>
+										<tr>
+										  <th colspan="1" style="text-align: center"><strong>current</strong></th>
+										  <th colspan="1" style="text-align: center"><strong>text</strong></th>
+										  <th colspan="1" style="text-align: center"><strong>BaseCTTS</strong></th>
+										  <th colspan="1" style="text-align: center"><strong>M²-CTTS</strong></th>
+										  <th colspan="1" style="text-align: center"><strong>CONCSS</strong></th>
+										  <th colspan="1" style="text-align: center"><strong>MSRGCN-CSS</strong></th>
+										  <th colspan="1" style="text-align: center"><strong>ECSS</strong></th>
+										  <th colspan="1" style="text-align: center"><strong>I³-CSS</strong></th>
+										  <th colspan="1" style="text-align: center"><strong style="color: #1d5da4;">Ours</strong></th>
+										</tr>
+									</thead>
+									<tbody>
+										<tr>
+											<td style="text-align: center">7<sup>th</sup></td>
+											<td style="text-align: center">I've said that I've got a problem with the circus. I'm not kidding.</td>
+											<td style="text-align: center"><audio src="./audio/dailytalk/BaseCTTS/9_0_d1402.wav" controls="" preload=""></audio></td>
+											<td style="text-align: center"><audio src="./audio/dailytalk/M2CTTS/9_0_d1402.wav" controls="" preload=""></audio></td>
+											<td style="text-align: center"><audio src="./audio/dailytalk/CONCSS/9_0_d1402.wav" controls="" preload=""></audio></td>
+											<td style="text-align: center"><audio src="./audio/dailytalk/MSRGCN/9_0_d1402.wav" controls="" preload=""></audio></td>
+											<td style="text-align: center"><audio src="./audio/dailytalk/ECSS/9_0_d1402.wav" controls="" preload=""></audio></td>
+											<td style="text-align: center"><audio src="./audio/dailytalk/IIICSS/9_0_d1402.wav" controls="" preload=""></audio></td>
+											<td style="text-align: center"><audio src="./audio/dailytalk/Ours/9_0_d1402.wav" controls="" preload=""></audio></td>
+										</tr>
+									</tbody>
+								</table>
+							</div>
+							
+							<!-- 一句话分割 -->
+							
+							<!-- 一句话分割 -->
+							<div class="module-content">
+								<span class="note"><b>Sample 2: </b>I'd like to, but I have to meet my parents in an hour for dinner. How about tomorrow? <span style="float: right; color: #6b7280;">(Source: DailyTalk)</span></span>
+								
+								<!-- 情感 - s -->
+								<p class="emo-title">EmoDist</p>
+								<div class="emo-container">	
+								  <div class="emo-row">
+								    <!-- 一个块代表一个情感 -->
+								    <div class="emo-block">
+								      <div class="emo-label">Happy</div>
+								      <div class="emo-range-wrapper">
+								        <div class="emo-value-float" style="left: 93%;">0.98</div>
+								        <input type="range" class="emo-range1" value="99" disabled>
+								      </div>
+								      <div class="emo-side-values"><span>0.00</span><span>1.00</span></div>
+								    </div>
+								    <div class="emo-block">
+								      <div class="emo-label">Sad</div>
+								      <div class="emo-range-wrapper">
+								        <div class="emo-value-float" style="left: 5%; color: #909090; ">0.00</div>
+								        <input type="range" class="emo-range2" value="0" disabled>
+								      </div>
+								      <div class="emo-side-values"><span>0.00</span><span>1.00</span></div>
+								    </div>
+								    <div class="emo-block">
+								      <div class="emo-label">Anger</div>
+								      <div class="emo-range-wrapper">
+								        <div class="emo-value-float" style="left: 90%;">0.96</div>
+								        <input type="range" class="emo-range1" value="96" disabled>
+								      </div>
+								      <div class="emo-side-values"><span>0.00</span><span>1.00</span></div>
+								    </div>
+								    <div class="emo-block">
+								      <div class="emo-label">Disgust</div>
+								      <div class="emo-range-wrapper">
+								        <div class="emo-value-float" style="left: 5%; color: #909090; ">0.00</div>
+								        <input type="range" class="emo-range2" value="0" disabled>
+								      </div>
+								      <div class="emo-side-values"><span>0.00</span><span>1.00</span></div>
+								    </div>
+								    <div class="emo-block">
+								      <div class="emo-label">Fear</div>
+								      <div class="emo-range-wrapper">
+								        <div class="emo-value-float" style="left: 5%; color: #909090; ">0.00</div>
+								        <input type="range" class="emo-range2" value="0" disabled>
+								      </div>
+								      <div class="emo-side-values"><span>0.00</span><span>1.00</span></div>
+								    </div>
+								    <div class="emo-block">
+								      <div class="emo-label">Surprise</div>
+								      <div class="emo-range-wrapper">
+								        <div class="emo-value-float" style="left: 5%; color: #909090; ">0.00</div>
+								        <input type="range" class="emo-range2" value="0" disabled>
+								      </div>
+								      <div class="emo-side-values"><span>0.00</span><span>1.00</span></div>
+								    </div>
+								    <div class="emo-block">
+								      <div class="emo-label">Neutral</div>
+								      <div class="emo-range-wrapper">
+								        <div class="emo-value-float" style="left: 93%;">1.00</div>
+								        <input type="range" class="emo-range1" value="100" disabled>
+								      </div>
+								      <div class="emo-side-values"><span>0.00</span><span>1.00</span></div>
+								    </div>
+								  </div>
+								</div>
+								<!-- 情感 - d -->
+								
+								<button class="toggle-button" onclick="toggleTable('tab2')">Show Conversation history 1</button>
+								<div id="tab2" class="toggle-content">
+								
+									<table id="table_4">
+										<thead>
+											<colgroup>
+											   <col width=10%></col>
+											   <col width=25%></col>
+											   <col width=20%></col>
+											</colgroup>
+											<tr>
+											  <th colspan="1" style="text-align: center"><strong>Conversation history</strong></th>
+											  <th colspan="1" style="text-align: center"><strong>text</strong></th>
+											  <th colspan="1" style="text-align: center"><strong>speech</strong></th>
+											</tr>
+										</thead>
+										<tbody>
+											<tr>
+												<td style="text-align: center">1<sup>th</sup></td>
+												<td style="text-align: center">What type of music do you like to listen to?</td>
+												<td style="text-align: center"><audio src="./audio/history/2394/0_0_d2394.wav" controls="" preload=""></audio></td>
+											</tr>
+											<!-- ... -->
+										</tbody>
+									</table>
+								</div>
+							
+							</div>
+							<div class="module-content">
+								<table id="table_4">
+									<thead>
+										<colgroup>
+										   <col></col>
+										</colgroup>
+										<tr>
+										  <th colspan="1" style="text-align: center"><strong>Comparative</strong></th>
+										</tr>
+									</thead>
+								</table>
+								<table id="table_4">
+									<thead>
+										<colgroup>
+										   <col width=15%></col>
+										   <col width=25%></col>
+										   <col width=20%></col>
+										   <col width=20%></col>
+										   <col width=20%></col>
+										   <col width=20%></col>
+										   <col width=20%></col>
+										   <col width=20%></col>
+										   <col width=20%></col>
+										</colgroup>
+										<tr>
+										  <th colspan="1" style="text-align: center"><strong>current</strong></th>
+										  <th colspan="1" style="text-align: center"><strong>text</strong></th>
+										  <th colspan="1" style="text-align: center"><strong>BaseCTTS</strong></th>
+										  <th colspan="1" style="text-align: center"><strong>M²-CTTS</strong></th>
+										  <th colspan="1" style="text-align: center"><strong>CONCSS</strong></th>
+										  <th colspan="1" style="text-align: center"><strong>MSRGCN-CSS</strong></th>
+										  <th colspan="1" style="text-align: center"><strong>ECSS</strong></th>
+										  <th colspan="1" style="text-align: center"><strong>I³-CSS</strong></th>
+										  <th colspan="1" style="text-align: center"><strong style="color: #1d5da4;">Ours</strong></th>
+										</tr>
+									</thead>
+									<tbody>
+										<tr>
+											<td style="text-align: center">7<sup>th</sup></td>
+											<td style="text-align: center">I'd like to, but I have to meet my parents in an hour for dinner. How about tomorrow?</td>
+											<td style="text-align: center"><audio src="./audio/dailytalk/BaseCTTS/6_0_d789.wav" controls="" preload=""></audio></td>
+											<td style="text-align: center"><audio src="./audio/dailytalk/M2CTTS/6_0_d789.wav" controls="" preload=""></audio></td>
+											<td style="text-align: center"><audio src="./audio/dailytalk/CONCSS/6_0_d789.wav" controls="" preload=""></audio></td>
+											<td style="text-align: center"><audio src="./audio/dailytalk/MSRGCN/6_0_d789.wav" controls="" preload=""></audio></td>
+											<td style="text-align: center"><audio src="./audio/dailytalk/ECSS/6_0_d789.wav" controls="" preload=""></audio></td>
+											<td style="text-align: center"><audio src="./audio/dailytalk/IIICSS/6_0_d789.wav" controls="" preload=""></audio></td>
+											<td style="text-align: center"><audio src="./audio/dailytalk/Ours/6_0_d789.wav" controls="" preload=""></audio></td>
+										</tr>
+									</tbody>
+								</table>
+							</div>
+							<!-- 一句话分割 -->
+							
+						</div>
+						<hr />
+					</div>
+					
+					<div class="section-content ">
+						<div class="subsection-exp-2">
+							<!-- 一句话分割 -->
+							<div class="module-content">
+								<span class="note"><b>Sample 3: </b>I can't help but feel a bit scared too. <span style="float: right; color: #6b7280;">(Source: NCSSD-EN)</span></span>
+								
+								<!-- 情感 - s -->
+								<p class="emo-title">EmoDist</p>
+								<div class="emo-container">	
+								  <div class="emo-row">
+								    <!-- 一个块代表一个情感 -->
+								    <div class="emo-block">
+								      <div class="emo-label">Happy</div>
+								      <div class="emo-range-wrapper">
+								        <div class="emo-value-float" style="left: 5%; color: #909090; ">0.00</div>
+								        <input type="range" class="emo-range2" value="0" disabled>
+								      </div>
+								      <div class="emo-side-values"><span>0.00</span><span>1.00</span></div>
+								    </div>
+								    <div class="emo-block">
+								      <div class="emo-label">Sad</div>
+								      <div class="emo-range-wrapper">
+								        <div class="emo-value-float" style="left: 95%;">1.00</div>
+								        <input type="range" class="emo-range1" value="100" disabled>
+								      </div>
+								      <div class="emo-side-values"><span>0.00</span><span>1.00</span></div>
+								    </div>
+								    <div class="emo-block">
+								      <div class="emo-label">Anger</div>
+								      <div class="emo-range-wrapper">
+								        <div class="emo-value-float" style="left: 5%;color: #909090; ">0.00</div>
+								        <input type="range" class="emo-range2" value="0" disabled>
+								      </div>
+								      <div class="emo-side-values"><span>0.00</span><span>1.00</span></div>
+								    </div>
+								    <div class="emo-block">
+								      <div class="emo-label">Disgust</div>
+								      <div class="emo-range-wrapper">
+								        <div class="emo-value-float" style="left: 5%; color: #909090; ">0.00</div>
+								        <input type="range" class="emo-range2" value="0" disabled>
+								      </div>
+								      <div class="emo-side-values"><span>0.00</span><span>1.00</span></div>
+								    </div>
+								    <div class="emo-block">
+								      <div class="emo-label">Fear</div>
+								      <div class="emo-range-wrapper">
+								        <div class="emo-value-float" style="left: 70%; ">0.73</div>
+								        <input type="range" class="emo-range1" value="73" disabled>
+								      </div>
+								      <div class="emo-side-values"><span>0.00</span><span>1.00</span></div>
+								    </div>
+								    <div class="emo-block">
+								      <div class="emo-label">Surprise</div>
+								      <div class="emo-range-wrapper">
+								        <div class="emo-value-float" style="left: 5%; color: #909090; ">0.00</div>
+								        <input type="range" class="emo-range2" value="0" disabled>
+								      </div>
+								      <div class="emo-side-values"><span>0.00</span><span>1.00</span></div>
+								    </div>
+								    <div class="emo-block">
+								      <div class="emo-label">Neutral</div>
+								      <div class="emo-range-wrapper">
+								        <div class="emo-value-float" style="left: 5%; color: #909090; ">0.00</div>
+								        <input type="range" class="emo-range2" value="0" disabled>
+								      </div>
+								      <div class="emo-side-values"><span>0.00</span><span>1.00</span></div>
+								    </div>
+								  </div>
+								</div>
+								<!-- 情感 - d -->
+								
+								<button class="toggle-button" onclick="toggleTable('tab3')">Show Conversation history 1</button>
+								<div id="tab3" class="toggle-content">
+								
+									<table id="table_4">
+										<thead>
+											<colgroup>
+											   <col width=10%></col>
+											   <col width=25%></col>
+											   <col width=20%></col>
+											</colgroup>
+											<tr>
+											  <th colspan="1" style="text-align: center"><strong>Conversation history</strong></th>
+											  <th colspan="1" style="text-align: center"><strong>text</strong></th>
+											  <th colspan="1" style="text-align: center"><strong>speech</strong></th>
+											</tr>
+										</thead>
+										<tbody>
+											<tr>
+												<td style="text-align: center">1<sup>th</sup></td>
+												<td style="text-align: center">What type of music do you like to listen to?</td>
+												<td style="text-align: center"><audio src="./audio/history/2394/0_0_d2394.wav" controls="" preload=""></audio></td>
+											</tr>
+											<!-- ... -->
+										</tbody>
+									</table>
+								</div>
+							
+							</div>
+							<div class="module-content">
+								<table id="table_4">
+									<thead>
+										<colgroup>
+										   <col></col>
+										</colgroup>
+										<tr>
+										  <th colspan="1" style="text-align: center"><strong>Comparative</strong></th>
+										</tr>
+									</thead>
+								</table>
+								<table id="table_4">
+									<thead>
+										<colgroup>
+										   <col width=15%></col>
+										   <col width=25%></col>
+										   <col width=20%></col>
+										   <col width=20%></col>
+										   <col width=20%></col>
+										   <col width=20%></col>
+										   <col width=20%></col>
+										   <col width=20%></col>
+										   <col width=20%></col>
+										</colgroup>
+										<tr>
+										  <th colspan="1" style="text-align: center"><strong>current</strong></th>
+										  <th colspan="1" style="text-align: center"><strong>text</strong></th>
+										  <th colspan="1" style="text-align: center"><strong>BaseCTTS</strong></th>
+										  <th colspan="1" style="text-align: center"><strong>M²-CTTS</strong></th>
+										  <th colspan="1" style="text-align: center"><strong>CONCSS</strong></th>
+										  <th colspan="1" style="text-align: center"><strong>MSRGCN-CSS</strong></th>
+										  <th colspan="1" style="text-align: center"><strong>ECSS</strong></th>
+										  <th colspan="1" style="text-align: center"><strong>I³-CSS</strong></th>
+										  <th colspan="1" style="text-align: center"><strong style="color: #1d5da4;">Ours</strong></th>
+										</tr>
+									</thead>
+									<tbody>
+										<tr>
+											<td style="text-align: center">7<sup>th</sup></td>
+											<td style="text-align: center">I can't help but feel a bit scared too. </td>
+											<td style="text-align: center"><audio src="./audio/ncssd-en/BaseCTTS/4_0_d447.wav" controls="" preload=""></audio></td>
+											<td style="text-align: center"><audio src="./audio/ncssd-en/M2CTTS/4_0_d447.wav" controls="" preload=""></audio></td>
+											<td style="text-align: center"><audio src="./audio/ncssd-en/CONCSS/4_0_d447.wav" controls="" preload=""></audio></td>
+											<td style="text-align: center"><audio src="./audio/ncssd-en/MSRGCN/4_0_d447.wav" controls="" preload=""></audio></td>
+											<td style="text-align: center"><audio src="./audio/ncssd-en/ECSS/4_0_d447.wav" controls="" preload=""></audio></td>
+											<td style="text-align: center"><audio src="./audio/ncssd-en/IIICSS/4_0_d447.wav" controls="" preload=""></audio></td>
+											<td style="text-align: center"><audio src="./audio/ncssd-en/Ours/4_0_d447.wav" controls="" preload=""></audio></td>
+										</tr>
+									</tbody>
+								</table>
+							</div>
+							<!-- 一句话分割 -->
+							<div class="module-content">
+								<span class="note"><b>Sample 4: </b>I know, right? It's such a game changer. Our school is really keeping up with the latest technology trends in education. I'm so glad we have this resource now.  <span style="float: right; color: #6b7280;">(Source: NCSSD-EN)</span></span>
+								<!-- 情感 - s -->
+								<p class="emo-title">EmoDist</p>
+								<div class="emo-container">	
+								  <div class="emo-row">
+								    <!-- 一个块代表一个情感 -->
+								    <div class="emo-block">
+								      <div class="emo-label">Happy</div>
+								      <div class="emo-range-wrapper">
+								        <div class="emo-value-float" style="left: 88%;">0.92</div>
+								        <input type="range" class="emo-range1" value="92" disabled>
+								      </div>
+								      <div class="emo-side-values"><span>0.00</span><span>1.00</span></div>
+								    </div>
+								    <div class="emo-block">
+								      <div class="emo-label">Sad</div>
+								      <div class="emo-range-wrapper">
+								        <div class="emo-value-float" style="left: 5%; color: #909090; ">0.00</div>
+								        <input type="range" class="emo-range2" value="0" disabled>
+								      </div>
+								      <div class="emo-side-values"><span>0.00</span><span>1.00</span></div>
+								    </div>
+								    <div class="emo-block">
+								      <div class="emo-label">Anger</div>
+								      <div class="emo-range-wrapper">
+								        <div class="emo-value-float" style="left: 5%; color: #909090; ">0.00</div>
+								        <input type="range" class="emo-range2" value="0" disabled>
+								      </div>
+								      <div class="emo-side-values"><span>0.00</span><span>1.00</span></div>
+								    </div>
+								    <div class="emo-block">
+								      <div class="emo-label">Disgust</div>
+								      <div class="emo-range-wrapper">
+								        <div class="emo-value-float" style="left: 5%; color: #909090; ">0.00</div>
+								        <input type="range" class="emo-range2" value="0" disabled>
+								      </div>
+								      <div class="emo-side-values"><span>0.00</span><span>1.00</span></div>
+								    </div>
+								    <div class="emo-block">
+								      <div class="emo-label">Fear</div>
+								      <div class="emo-range-wrapper">
+								        <div class="emo-value-float" style="left: 5%; color: #909090; ">0.00</div>
+								        <input type="range" class="emo-range2" value="0" disabled>
+								      </div>
+								      <div class="emo-side-values"><span>0.00</span><span>1.00</span></div>
+								    </div>
+								    <div class="emo-block">
+								      <div class="emo-label">Surprise</div>
+								      <div class="emo-range-wrapper">
+								        <div class="emo-value-float" style="left: 74%;">0.78</div>
+								        <input type="range" class="emo-range1" value="78" disabled>
+								      </div>
+								      <div class="emo-side-values"><span>0.00</span><span>1.00</span></div>
+								    </div>
+								    <div class="emo-block">
+								      <div class="emo-label">Neutral</div>
+								      <div class="emo-range-wrapper">
+								        <div class="emo-value-float" style="left: 5%; color: #909090; ">0.00</div>
+								        <input type="range" class="emo-range2" value="0" disabled>
+								      </div>
+								      <div class="emo-side-values"><span>0.00</span><span>1.00</span></div>
+								    </div>
+								  </div>
+								</div>
+								<!-- 情感 - d -->
+								<button class="toggle-button" onclick="toggleTable('tab4')">Show Conversation history 1</button>
+								<div id="tab4" class="toggle-content">
+								
+									<table id="table_4">
+										<thead>
+											<colgroup>
+											   <col width=10%></col>
+											   <col width=25%></col>
+											   <col width=20%></col>
+											</colgroup>
+											<tr>
+											  <th colspan="1" style="text-align: center"><strong>Conversation history</strong></th>
+											  <th colspan="1" style="text-align: center"><strong>text</strong></th>
+											  <th colspan="1" style="text-align: center"><strong>speech</strong></th>
+											</tr>
+										</thead>
+										<tbody>
+											<tr>
+												<td style="text-align: center">1<sup>th</sup></td>
+												<td style="text-align: center">What type of music do you like to listen to?</td>
+												<td style="text-align: center"><audio src="./audio/history/2394/0_0_d2394.wav" controls="" preload=""></audio></td>
+											</tr>
+											<!-- ... -->
+										</tbody>
+									</table>
+								</div>
+							
+							</div>
+							<div class="module-content">
+								<table id="table_4">
+									<thead>
+										<colgroup>
+										   <col></col>
+										</colgroup>
+										<tr>
+										  <th colspan="1" style="text-align: center"><strong>Comparative</strong></th>
+										</tr>
+									</thead>
+								</table>
+								<table id="table_4">
+									<thead>
+										<colgroup>
+										   <col width=15%></col>
+										   <col width=25%></col>
+										   <col width=20%></col>
+										   <col width=20%></col>
+										   <col width=20%></col>
+										   <col width=20%></col>
+										   <col width=20%></col>
+										   <col width=20%></col>
+										   <col width=20%></col>
+										</colgroup>
+										<tr>
+										  <th colspan="1" style="text-align: center"><strong>current</strong></th>
+										  <th colspan="1" style="text-align: center"><strong>text</strong></th>
+										  <th colspan="1" style="text-align: center"><strong>BaseCTTS</strong></th>
+										  <th colspan="1" style="text-align: center"><strong>M²-CTTS</strong></th>
+										  <th colspan="1" style="text-align: center"><strong>CONCSS</strong></th>
+										  <th colspan="1" style="text-align: center"><strong>MSRGCN-CSS</strong></th>
+										  <th colspan="1" style="text-align: center"><strong>ECSS</strong></th>
+										  <th colspan="1" style="text-align: center"><strong>I³-CSS</strong></th>
+										  <th colspan="1" style="text-align: center"><strong style="color: #1d5da4;">Ours</strong></th>
+										</tr>
+									</thead>
+									<tbody>
+										<tr>
+											<td style="text-align: center">7<sup>th</sup></td>
+											<td style="text-align: center">I know, right? It's such a game changer. Our school is really keeping up with the latest technology trends in education. I'm so glad we have this resource now. </td>
+											<td style="text-align: center"><audio src="./audio/ncssd-en/BaseCTTS/6_0_d47.wav" controls="" preload=""></audio></td>
+											<td style="text-align: center"><audio src="./audio/ncssd-en/M2CTTS/6_0_d47.wav" controls="" preload=""></audio></td>
+											<td style="text-align: center"><audio src="./audio/ncssd-en/CONCSS/6_0_d47.wav" controls="" preload=""></audio></td>
+											<td style="text-align: center"><audio src="./audio/ncssd-en/MSRGCN/6_0_d47.wav" controls="" preload=""></audio></td>
+											<td style="text-align: center"><audio src="./audio/ncssd-en/ECSS/6_0_d47.wav" controls="" preload=""></audio></td>
+											<td style="text-align: center"><audio src="./audio/ncssd-en/IIICSS/6_0_d47.wav" controls="" preload=""></audio></td>
+											<td style="text-align: center"><audio src="./audio/ncssd-en/Ours/6_0_d47.wav" controls="" preload=""></audio></td>
+										</tr>
+									</tbody>
+								</table>
+							</div>
+							<!-- 一句话分割 -->
+						</div>
+						<hr />
+					</div>
+					
+					<div class="section-content ">
+						<div class="subsection-exp-2">
+							<!-- 一句话分割 -->
+							<div class="module-content">
+								<span class="note"><b>Sample 5: </b>为什么生气呢？(Why are you angry?)  <span style="float: right; color: #6b7280;">(Source: NCSSD-ZH)</span></span>
+								
+								<!-- 情感 - s -->
+								<p class="emo-title">EmoDist</p>
+								<div class="emo-container">	
+								  <div class="emo-row">
+								    <!-- 一个块代表一个情感 -->
+								    <div class="emo-block">
+								      <div class="emo-label">Happy</div>
+								      <div class="emo-range-wrapper">
+								        <div class="emo-value-float" style="left: 5%; color: #909090; ">0.00</div>
+								        <input type="range" class="emo-range2" value="0" disabled>
+								      </div>
+								      <div class="emo-side-values"><span>0.00</span><span>1.00</span></div>
+								    </div>
+								    <div class="emo-block">
+								      <div class="emo-label">Sad</div>
+								      <div class="emo-range-wrapper">
+								        <div class="emo-value-float" style="left: 39%;">0.39</div>
+								        <input type="range" class="emo-range1" value="39" disabled>
+								      </div>
+								      <div class="emo-side-values"><span>0.00</span><span>1.00</span></div>
+								    </div>
+								    <div class="emo-block">
+								      <div class="emo-label">Anger</div>
+								      <div class="emo-range-wrapper">
+								        <div class="emo-value-float" style="left: 94%;">1.00</div>
+								        <input type="range" class="emo-range1" value="100" disabled>
+								      </div>
+								      <div class="emo-side-values"><span>0.00</span><span>1.00</span></div>
+								    </div>
+								    <div class="emo-block">
+								      <div class="emo-label">Disgust</div>
+								      <div class="emo-range-wrapper">
+								        <div class="emo-value-float" style="left: 58%">0.59</div>
+								        <input type="range" class="emo-range1" value="59" disabled>
+								      </div>
+								      <div class="emo-side-values"><span>0.00</span><span>1.00</span></div>
+								    </div>
+								    <div class="emo-block">
+								      <div class="emo-label">Fear</div>
+								      <div class="emo-range-wrapper">
+								        <div class="emo-value-float" style="left: 5%;  color: #909090;">0.00</div>
+								        <input type="range" class="emo-range2" value="0" disabled>
+								      </div>
+								      <div class="emo-side-values"><span>0.00</span><span>1.00</span></div>
+								    </div>
+								    <div class="emo-block">
+								      <div class="emo-label">Surprise</div>
+								      <div class="emo-range-wrapper">
+								        <div class="emo-value-float" style="left: 5%; color: #909090; ">0.00</div>
+								        <input type="range" class="emo-range2" value="0" disabled>
+								      </div>
+								      <div class="emo-side-values"><span>0.00</span><span>1.00</span></div>
+								    </div>
+								    <div class="emo-block">
+								      <div class="emo-label">Neutral</div>
+								      <div class="emo-range-wrapper">
+								        <div class="emo-value-float" style="left: 5%; color: #909090; ">0.00</div>
+								        <input type="range" class="emo-range2" value="0" disabled>
+								      </div>
+								      <div class="emo-side-values"><span>0.00</span><span>1.00</span></div>
+								    </div>
+								  </div>
+								</div>
+								<!-- 情感 - d -->
+								
+								<button class="toggle-button" onclick="toggleTable('tab5')">Show Conversation history 1</button>
+								<div id="tab5" class="toggle-content">
+								
+									<table id="table_4">
+										<thead>
+											<colgroup>
+											   <col width=10%></col>
+											   <col width=25%></col>
+											   <col width=20%></col>
+											</colgroup>
+											<tr>
+											  <th colspan="1" style="text-align: center"><strong>Conversation history</strong></th>
+											  <th colspan="1" style="text-align: center"><strong>text</strong></th>
+											  <th colspan="1" style="text-align: center"><strong>speech</strong></th>
+											</tr>
+										</thead>
+										<tbody>
+											<tr>
+												<td style="text-align: center">1<sup>th</sup></td>
+												<td style="text-align: center">What type of music do you like to listen to?</td>
+												<td style="text-align: center"><audio src="./audio/history/2394/0_0_d2394.wav" controls="" preload=""></audio></td>
+											</tr>
+											<!-- ... -->
+										</tbody>
+									</table>
+								</div>
+							
+							</div>
+							<div class="module-content">
+								<table id="table_4">
+									<thead>
+										<colgroup>
+										   <col></col>
+										</colgroup>
+										<tr>
+										  <th colspan="1" style="text-align: center"><strong>Comparative</strong></th>
+										</tr>
+									</thead>
+								</table>
+								<table id="table_4">
+									<thead>
+										<colgroup>
+										   <col width=15%></col>
+										   <col width=25%></col>
+										   <col width=20%></col>
+										   <col width=20%></col>
+										   <col width=20%></col>
+										   <col width=20%></col>
+										   <col width=20%></col>
+										   <col width=20%></col>
+										   <col width=20%></col>
+										</colgroup>
+										<tr>
+										  <th colspan="1" style="text-align: center"><strong>current</strong></th>
+										  <th colspan="1" style="text-align: center"><strong>text</strong></th>
+										  <th colspan="1" style="text-align: center"><strong>BaseCTTS</strong></th>
+										  <th colspan="1" style="text-align: center"><strong>M²-CTTS</strong></th>
+										  <th colspan="1" style="text-align: center"><strong>CONCSS</strong></th>
+										  <th colspan="1" style="text-align: center"><strong>MSRGCN-CSS</strong></th>
+										  <th colspan="1" style="text-align: center"><strong>ECSS</strong></th>
+										  <th colspan="1" style="text-align: center"><strong>I³-CSS</strong></th>
+										  <th colspan="1" style="text-align: center"><strong style="color: #1d5da4;">Ours</strong></th>
+										</tr>
+									</thead>
+									<tbody>
+										<tr>
+											<td style="text-align: center">7<sup>th</sup></td>
+											<td style="text-align: center">为什么生气呢？</td>
+											<td style="text-align: center"><audio src="./audio/ncssd-zh/BaseCTTS/2_0_d162.wav" controls="" preload=""></audio></td>
+											<td style="text-align: center"><audio src="./audio/ncssd-zh/M2CTTS/2_0_d162.wav" controls="" preload=""></audio></td>
+											<td style="text-align: center"><audio src="./audio/ncssd-zh/CONCSS/2_0_d162.wav" controls="" preload=""></audio></td>
+											<td style="text-align: center"><audio src="./audio/ncssd-zh/MSRGCN/2_0_d162.wav" controls="" preload=""></audio></td>
+											<td style="text-align: center"><audio src="./audio/ncssd-zh/ECSS/2_0_d162.wav" controls="" preload=""></audio></td>
+											<td style="text-align: center"><audio src="./audio/ncssd-zh/IIICSS/2_0_d162.wav" controls="" preload=""></audio></td>
+											<td style="text-align: center"><audio src="./audio/ncssd-zh/Ours/2_0_d162.wav" controls="" preload=""></audio></td>
+										</tr>
+									</tbody>
+								</table>
+							</div>
+							<!-- 一句话分割 -->
+												
+							<!-- 一句话分割 -->
+							<div class="module-content">
+								<span class="note"><b>Sample 6: </b>没错，这种款式我以前从来没见过，很有创意。(That's right, I've never seen this kind of style before. It's very creative.) <br/> &nbsp; <span style="float: right; color: #6b7280;">(Source: NCSSD-ZH)</span></span>
+								
+								<!-- 情感 - s -->
+								<p class="emo-title">EmoDist</p>
+								<div class="emo-container">	
+								  <div class="emo-row">
+								    <!-- 一个块代表一个情感 -->
+								    <div class="emo-block">
+								      <div class="emo-label">Happy</div>
+								      <div class="emo-range-wrapper">
+								        <div class="emo-value-float" style="left: 93%;">0.99</div>
+								        <input type="range" class="emo-range1" value="99" disabled>
+								      </div>
+								      <div class="emo-side-values"><span>0.00</span><span>1.00</span></div>
+								    </div>
+								    <div class="emo-block">
+								      <div class="emo-label">Sad</div>
+								      <div class="emo-range-wrapper">
+								        <div class="emo-value-float" style="left: 5%; color: #909090; ">0.00</div>
+								        <input type="range" class="emo-range2" value="0" disabled>
+								      </div>
+								      <div class="emo-side-values"><span>0.00</span><span>1.00</span></div>
+								    </div>
+								    <div class="emo-block">
+								      <div class="emo-label">Anger</div>
+								      <div class="emo-range-wrapper">
+								        <div class="emo-value-float" style="left: 4%; color: #909090; ">0.00</div>
+								        <input type="range" class="emo-range2" value="0" disabled>
+								      </div>
+								      <div class="emo-side-values"><span>0.00</span><span>1.00</span></div>
+								    </div>
+								    <div class="emo-block">
+								      <div class="emo-label">Disgust</div>
+								      <div class="emo-range-wrapper">
+								        <div class="emo-value-float" style="left: 4%; color: #909090; ">0.00</div>
+								        <input type="range" class="emo-range2" value="0" disabled>
+								      </div>
+								      <div class="emo-side-values"><span>0.00</span><span>1.00</span></div>
+								    </div>
+								    <div class="emo-block">
+								      <div class="emo-label">Fear</div>
+								      <div class="emo-range-wrapper">
+								        <div class="emo-value-float" style="left: 5%;  color: #909090;">0.00</div>
+								        <input type="range" class="emo-range2" value="0" disabled>
+								      </div>
+								      <div class="emo-side-values"><span>0.00</span><span>1.00</span></div>
+								    </div>
+								    <div class="emo-block">
+								      <div class="emo-label">Surprise</div>
+								      <div class="emo-range-wrapper">
+								        <div class="emo-value-float" style="left: 35%; ">0.35</div>
+								        <input type="range" class="emo-range1" value="35" disabled>
+								      </div>
+								      <div class="emo-side-values"><span>0.00</span><span>1.00</span></div>
+								    </div>
+								    <div class="emo-block">
+								      <div class="emo-label">Neutral</div>
+								      <div class="emo-range-wrapper">
+								        <div class="emo-value-float" style="left: 5%;  color: #909090;">0.99</div>
+								        <input type="range" class="emo-range2" value="0" disabled>
+								      </div>
+								      <div class="emo-side-values"><span>0.00</span><span>1.00</span></div>
+								    </div>
+								  </div>
+								</div>
+								<!-- 情感 - d -->
+								
+								<button class="toggle-button" onclick="toggleTable('tab6')">Show Conversation history 1</button>
+								<div id="tab6" class="toggle-content">
+								
+									<table id="table_4">
+										<thead>
+											<colgroup>
+											   <col width=10%></col>
+											   <col width=25%></col>
+											   <col width=20%></col>
+											</colgroup>
+											<tr>
+											  <th colspan="1" style="text-align: center"><strong>Conversation history</strong></th>
+											  <th colspan="1" style="text-align: center"><strong>text</strong></th>
+											  <th colspan="1" style="text-align: center"><strong>speech</strong></th>
+											</tr>
+										</thead>
+										<tbody>
+											<tr>
+												<td style="text-align: center">1<sup>th</sup></td>
+												<td style="text-align: center">What type of music do you like to listen to?</td>
+												<td style="text-align: center"><audio src="./audio/history/2394/0_0_d2394.wav" controls="" preload=""></audio></td>
+											</tr>
+											<!-- ... -->
+										</tbody>
+									</table>
+								</div>
+							
+							</div>
+							<div class="module-content">
+								<table id="table_4">
+									<thead>
+										<colgroup>
+										   <col></col>
+										</colgroup>
+										<tr>
+										  <th colspan="1" style="text-align: center"><strong>Comparative</strong></th>
+										</tr>
+									</thead>
+								</table>
+								<table id="table_4">
+									<thead>
+										<colgroup>
+										   <col width=15%></col>
+										   <col width=25%></col>
+										   <col width=20%></col>
+										   <col width=20%></col>
+										   <col width=20%></col>
+										   <col width=20%></col>
+										   <col width=20%></col>
+										   <col width=20%></col>
+										   <col width=20%></col>
+										</colgroup>
+										<tr>
+										  <th colspan="1" style="text-align: center"><strong>current</strong></th>
+										  <th colspan="1" style="text-align: center"><strong>text</strong></th>
+										  <th colspan="1" style="text-align: center"><strong>BaseCTTS</strong></th>
+										  <th colspan="1" style="text-align: center"><strong>M²-CTTS</strong></th>
+										  <th colspan="1" style="text-align: center"><strong>CONCSS</strong></th>
+										  <th colspan="1" style="text-align: center"><strong>MSRGCN-CSS</strong></th>
+										  <th colspan="1" style="text-align: center"><strong>ECSS</strong></th>
+										  <th colspan="1" style="text-align: center"><strong>I³-CSS</strong></th>
+										  <th colspan="1" style="text-align: center"><strong style="color: #1d5da4;">Ours</strong></th>
+										</tr>
+									</thead>
+									<tbody>
+										<tr>
+											<td style="text-align: center">7<sup>th</sup></td>
+											<td style="text-align: center">没错，这种款式我以前从来没见过，很有创意。</td>
+											<td style="text-align: center"><audio src="./audio/ncssd-zh/BaseCTTS/3_5_d1202.wav" controls="" preload=""></audio></td>
+											<td style="text-align: center"><audio src="./audio/ncssd-zh/M2CTTS/3_5_d1202.wav" controls="" preload=""></audio></td>
+											<td style="text-align: center"><audio src="./audio/ncssd-zh/CONCSS/3_5_d1202.wav" controls="" preload=""></audio></td>
+											<td style="text-align: center"><audio src="./audio/ncssd-zh/MSRGCN/3_5_d1202.wav" controls="" preload=""></audio></td>
+											<td style="text-align: center"><audio src="./audio/ncssd-zh/ECSS/3_5_d1202.wav" controls="" preload=""></audio></td>
+											<td style="text-align: center"><audio src="./audio/ncssd-zh/IIICSS/3_5_d1202.wav" controls="" preload=""></audio></td>
+											<td style="text-align: center"><audio src="./audio/ncssd-zh/Ours/3_5_d1202.wav" controls="" preload=""></audio></td>
+										</tr>
+									</tbody>
+								</table>
+							</div>
+							<!-- 一句话分割 -->
+												
+							
+						</div>
+						<hr />
+					</div>
+				
+				</div>
+
+				<div class="section" id="mixed-emo">
+					<div class="section-title">4. Mixed Emotion Controllability</div>
+						<div class="section-content model">
+							<div class="module-content">
+								<!-- 单句话分割 -->
+								<span class="note"><b>Sample 1: </b>Beautifully done.</span>
+								<div style="background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 12px; padding: 20px; display: flex; flex-wrap: wrap; box-shadow: 0 2px 6px rgba(0,0,0,0.05); font-family: sans-serif;">
+								  <div style="flex: 1 1 75%; padding-right: 16px;">
+								    <div style="display: grid; grid-template-columns: repeat(1, 1fr); gap: 10px;">
+								      
+									  <div style="display: flex; align-items: center; gap: 10px;">
+									    <div style="width: 80px;">Neutral</div>
+									    <div style="flex: 1; background: #f4f4f5; border-radius: 8px; overflow: hidden; height: 16px;">
+									      <div style="width: 0%; background: #b0b4ba; height: 100%;"></div>
+									    </div>
+									    <div style="width: 40px; text-align: right;">0.00</div>
+									  </div>
+									  
+								      <div style="display: flex; align-items: center; gap: 10px;">
+								        <div style="width: 80px;  color: #374151;">Happy</div>
+								        <div style="flex: 1; background: #f5f7f5; border-radius: 8px; overflow: hidden; height: 16px;">
+								          <div style="width: 0%; background: #9bc9b5; height: 100%;"></div>
+								        </div>
+								        <div style="width: 40px; text-align: right; color: #374151;">0.00</div>
+								      </div>
+								    
+								      <div style="display: flex; align-items: center; gap: 10px;">
+								        <div style="width: 80px;">Sad</div>
+								        <div style="flex: 1; background: #f5f7fa; border-radius: 8px; overflow: hidden; height: 16px;">
+								          <div style="width: 0%; background: #a3b9d2; height: 100%;"></div>
+								        </div>
+								        <div style="width: 40px; text-align: right;">0.00</div>
+								      </div>
+								    
+								      <div style="display: flex; align-items: center; gap: 10px;">
+								        <div style="width: 80px;">Anger</div>
+								        <div style="flex: 1; background: #fdf5f4; border-radius: 8px; overflow: hidden; height: 16px;">
+								          <div style="width: 0%; background: #d9a3a0; height: 100%;"></div>
+								        </div>
+								        <div style="width: 40px; text-align: right;">0.00</div>
+								      </div>
+								    
+								      <div style="display: flex; align-items: center; gap: 10px;">
+								        <div style="width: 80px; ">Disgust</div>
+								        <div style="flex: 1; background: #f6f8f5; border-radius: 8px; overflow: hidden; height: 16px;">
+								          <div style="width: 0%; background: #b4c8a7; height: 100%;"></div>
+								        </div>
+								        <div style="width: 40px; text-align: right;">0.00</div>
+								      </div>
+								    
+								      <div style="display: flex; align-items: center; gap: 10px;">
+								        <div style="width: 80px; font-weight: bold;">Fear</div>
+								        <div style="flex: 1; background: #fcf8f2; border-radius: 8px; overflow: hidden; height: 16px;">
+								          <div style="width: 100%; background: #d8ba96; height: 100%;"></div>
+								        </div>
+								        <div style="width: 40px; text-align: right; font-weight: bold;">1.00</div>
+								      </div>
+								    
+								      <div style="display: flex; align-items: center; gap: 10px;">
+								        <div style="width: 80px;">Surprise</div>
+								        <div style="flex: 1; background: #f8f7fc; border-radius: 8px; overflow: hidden; height: 16px;">
+								          <div style="width: 0%; background: #c2b6e1; height: 100%;"></div>
+								        </div>
+								        <div style="width: 40px; text-align: right;">0.00</div>
+								      </div>
+								    
+								      
+								    
+								    </div>
+																
+								  </div>
+								
+								  <div style="flex: 1 1 25%; margin: auto;">
+									<div style="width: 100%;">
+										<div style="text-align: center;">Source Speech</div>
+										<audio src="./audio/emodist/7_1_d459.wav" controls style="width: 100%;"></audio>
+									</div>
+									<div style="width: 100%;">
+										<div style="text-align: center;">Speech with Controlled Mixed Emotion</div>
+										<audio src="./audio/emodist/害怕7_1_d459.wav" controls style="width: 100%;"></audio>
+									</div>
+								  </div>
+								</div>
+								<!-- 单句话分割 --> 
+								
+								<!-- 单句话分割 -->
+								<span class="note"><b>Sample 2: </b>Beautifully done.</span>
+								<div style="background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 12px; padding: 20px; display: flex; flex-wrap: wrap; box-shadow: 0 2px 6px rgba(0,0,0,0.05); font-family: sans-serif;">
+								  <div style="flex: 1 1 75%; padding-right: 16px;">
+								    <div style="display: grid; grid-template-columns: repeat(1, 1fr); gap: 10px;">
+								      
+									  <div style="display: flex; align-items: center; gap: 10px;">
+									    <div style="width: 80px;">Neutral</div>
+									    <div style="flex: 1; background: #f4f4f5; border-radius: 8px; overflow: hidden; height: 16px;">
+									      <div style="width: 0%; background: #b0b4ba; height: 100%;"></div>
+									    </div>
+									    <div style="width: 40px; text-align: right;">0.00</div>
+									  </div>
+									  
+								      <div style="display: flex; align-items: center; gap: 10px;">
+								        <div style="width: 80px;  color: #374151;">Happy</div>
+								        <div style="flex: 1; background: #f5f7f5; border-radius: 8px; overflow: hidden; height: 16px;">
+								          <div style="width: 0%; background: #9bc9b5; height: 100%;"></div>
+								        </div>
+								        <div style="width: 40px; text-align: right; color: #374151;">0.00</div>
+								      </div>
+								    
+								      <div style="display: flex; align-items: center; gap: 10px;">
+								        <div style="width: 80px;">Sad</div>
+								        <div style="flex: 1; background: #f5f7fa; border-radius: 8px; overflow: hidden; height: 16px;">
+								          <div style="width: 0%; background: #a3b9d2; height: 100%;"></div>
+								        </div>
+								        <div style="width: 40px; text-align: right;">0.00</div>
+								      </div>
+								    
+								      <div style="display: flex; align-items: center; gap: 10px;">
+								        <div style="width: 80px; font-weight: bold;">Anger</div>
+								        <div style="flex: 1; background: #fdf5f4; border-radius: 8px; overflow: hidden; height: 16px;">
+								          <div style="width: 100%; background: #d9a3a0; height: 100%;"></div>
+								        </div>
+								        <div style="width: 40px; text-align: right; font-weight: bold;">1.00</div>
+								      </div>
+								    
+								      <div style="display: flex; align-items: center; gap: 10px;">
+								        <div style="width: 80px; ">Disgust</div>
+								        <div style="flex: 1; background: #f6f8f5; border-radius: 8px; overflow: hidden; height: 16px;">
+								          <div style="width: 0%; background: #b4c8a7; height: 100%;"></div>
+								        </div>
+								        <div style="width: 40px; text-align: right;">0.00</div>
+								      </div>
+								    
+								      <div style="display: flex; align-items: center; gap: 10px;">
+								        <div style="width: 80px;">Fear</div>
+								        <div style="flex: 1; background: #fcf8f2; border-radius: 8px; overflow: hidden; height: 16px;">
+								          <div style="width: 0%; background: #d8ba96; height: 100%;"></div>
+								        </div>
+								        <div style="width: 40px; text-align: right;">0.00</div>
+								      </div>
+								    
+								      <div style="display: flex; align-items: center; gap: 10px;">
+								        <div style="width: 80px;">Surprise</div>
+								        <div style="flex: 1; background: #f8f7fc; border-radius: 8px; overflow: hidden; height: 16px;">
+								          <div style="width: 0%; background: #c2b6e1; height: 100%;"></div>
+								        </div>
+								        <div style="width: 40px; text-align: right;">0.00</div>
+								      </div>
+								    
+								      
+								    
+								    </div>
+																
+								  </div>
+								
+								  <div style="flex: 1 1 25%; margin: auto;">
+									<div style="width: 100%;">
+										<div style="text-align: center;">Source Speech</div>
+										<audio src="./audio/emodist/7_1_d459.wav" controls style="width: 100%;"></audio>
+									</div>
+									<div style="width: 100%;">
+										<div style="text-align: center;">Speech with Controlled Mixed Emotion</div>
+										<audio src="./audio/emodist/愤怒7_1_d459.wav" controls style="width: 100%;"></audio>
+									</div>
+								  </div>
+								</div>
+								<!-- 单句话分割 --> 
+								
+								<!-- 单句话分割 -->
+								<span class="note"><b>Sample 3: </b>Then just press the black button all the way down.</span>
+								<div style="background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 12px; padding: 20px; display: flex; flex-wrap: wrap; box-shadow: 0 2px 6px rgba(0,0,0,0.05); font-family: sans-serif;">
+								  <div style="flex: 1 1 75%; padding-right: 16px;">
+								    <div style="display: grid; grid-template-columns: repeat(1, 1fr); gap: 10px;">
+								      
+									  <div style="display: flex; align-items: center; gap: 10px;">
+									    <div style="width: 80px;">Neutral</div>
+									    <div style="flex: 1; background: #f4f4f5; border-radius: 8px; overflow: hidden; height: 16px;">
+									      <div style="width: 0%; background: #b0b4ba; height: 100%;"></div>
+									    </div>
+									    <div style="width: 40px; text-align: right;">0.00</div>
+									  </div>
+									  
+								      <div style="display: flex; align-items: center; gap: 10px;">
+								        <div style="width: 80px;  color: #374151; font-weight: bold;">Happy</div>
+								        <div style="flex: 1; background: #f5f7f5; border-radius: 8px; overflow: hidden; height: 16px;">
+								          <div style="width: 50%; background: #9bc9b5; height: 100%;"></div>
+								        </div>
+								        <div style="width: 40px; text-align: right; color: #374151; font-weight: bold;">0.50</div>
+								      </div>
+								    
+								      <div style="display: flex; align-items: center; gap: 10px;">
+								        <div style="width: 80px;">Sad</div>
+								        <div style="flex: 1; background: #f5f7fa; border-radius: 8px; overflow: hidden; height: 16px;">
+								          <div style="width: 0%; background: #a3b9d2; height: 100%;"></div>
+								        </div>
+								        <div style="width: 40px; text-align: right;">0.00</div>
+								      </div>
+								    
+								      <div style="display: flex; align-items: center; gap: 10px;">
+								        <div style="width: 80px;">Anger</div>
+								        <div style="flex: 1; background: #fdf5f4; border-radius: 8px; overflow: hidden; height: 16px;">
+								          <div style="width: 0%; background: #d9a3a0; height: 100%;"></div>
+								        </div>
+								        <div style="width: 40px; text-align: right;">0.00</div>
+								      </div>
+								    
+								      <div style="display: flex; align-items: center; gap: 10px;">
+								        <div style="width: 80px; ">Disgust</div>
+								        <div style="flex: 1; background: #f6f8f5; border-radius: 8px; overflow: hidden; height: 16px;">
+								          <div style="width: 0%; background: #b4c8a7; height: 100%;"></div>
+								        </div>
+								        <div style="width: 40px; text-align: right;">0.00</div>
+								      </div>
+								    
+								      <div style="display: flex; align-items: center; gap: 10px;">
+								        <div style="width: 80px;">Fear</div>
+								        <div style="flex: 1; background: #fcf8f2; border-radius: 8px; overflow: hidden; height: 16px;">
+								          <div style="width: 0%; background: #d8ba96; height: 100%;"></div>
+								        </div>
+								        <div style="width: 40px; text-align: right;">0.00</div>
+								      </div>
+								    
+								      <div style="display: flex; align-items: center; gap: 10px;">
+								        <div style="width: 80px; font-weight: bold;">Surprise</div>
+								        <div style="flex: 1; background: #f8f7fc; border-radius: 8px; overflow: hidden; height: 16px;">
+								          <div style="width: 50%; background: #c2b6e1; height: 100%;"></div>
+								        </div>
+								        <div style="width: 40px; text-align: right; font-weight: bold;">0.50</div>
+								      </div>
+								    
+								      
+								    
+								    </div>
+																
+								  </div>
+								
+								  <div style="flex: 1 1 25%; margin: auto;">
+									<div style="width: 100%;">
+										<div style="text-align: center;">Source Speech</div>
+										<audio src="./audio/emodist/4_1_d110.wav" controls style="width: 100%;"></audio>
+									</div>
+									<div style="width: 100%;">
+										<div style="text-align: center;">Speech with Controlled Mixed Emotion</div>
+										<audio src="./audio/emodist/开心-惊讶554_1_d110.wav" controls style="width: 100%;"></audio>
+									</div>
+								  </div>
+								</div>
+								<!-- 单句话分割 --> 
+								
+								<!-- 单句话分割 -->
+								<span class="note"><b>Sample 4: </b>I’ve got a new boss.</span>
+								<div style="background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 12px; padding: 20px; display: flex; flex-wrap: wrap; box-shadow: 0 2px 6px rgba(0,0,0,0.05); font-family: sans-serif;">
+								  <div style="flex: 1 1 75%; padding-right: 16px;">
+								    <div style="display: grid; grid-template-columns: repeat(1, 1fr); gap: 10px;">
+								      <div style="display: flex; align-items: center; gap: 10px;">
+								        <div style="width: 80px;">Neutral</div>
+								        <div style="flex: 1; background: #f4f4f5; border-radius: 8px; overflow: hidden; height: 16px;">
+								          <div style="width: 0%; background: #b0b4ba; height: 100%;"></div>
+								        </div>
+								        <div style="width: 40px; text-align: right;">0.00</div>
+								      </div>
+									  
+								      <div style="display: flex; align-items: center; gap: 10px;">
+								        <div style="width: 80px;  color: #374151;">Happy</div>
+								        <div style="flex: 1; background: #f5f7f5; border-radius: 8px; overflow: hidden; height: 16px;">
+								          <div style="width: 0%; background: #9bc9b5; height: 100%;"></div>
+								        </div>
+								        <div style="width: 40px; text-align: right; color: #374151;">0.00</div>
+								      </div>
+								    
+								      <div style="display: flex; align-items: center; gap: 10px;">
+								        <div style="width: 80px;">Sad</div>
+								        <div style="flex: 1; background: #f5f7fa; border-radius: 8px; overflow: hidden; height: 16px;">
+								          <div style="width: 0%; background: #a3b9d2; height: 100%;"></div>
+								        </div>
+								        <div style="width: 40px; text-align: right;">0.00</div>
+								      </div>
+								    
+								      <div style="display: flex; align-items: center; gap: 10px;">
+								        <div style="width: 80px; font-weight: bold;">Anger</div>
+								        <div style="flex: 1; background: #fdf5f4; border-radius: 8px; overflow: hidden; height: 16px;">
+								          <div style="width: 30%; background: #d9a3a0; height: 100%;"></div>
+								        </div>
+								        <div style="width: 40px; text-align: right; font-weight: bold;">0.30</div>
+								      </div>
+								    
+								      <div style="display: flex; align-items: center; gap: 10px;">
+								        <div style="width: 80px; ">Disgust</div>
+								        <div style="flex: 1; background: #f6f8f5; border-radius: 8px; overflow: hidden; height: 16px;">
+								          <div style="width: 0%; background: #b4c8a7; height: 100%;"></div>
+								        </div>
+								        <div style="width: 40px; text-align: right;">0.00</div>
+								      </div>
+								    
+								      <div style="display: flex; align-items: center; gap: 10px;">
+								        <div style="width: 80px; font-weight: bold;">Fear</div>
+								        <div style="flex: 1; background: #fcf8f2; border-radius: 8px; overflow: hidden; height: 16px;">
+								          <div style="width: 70%; background: #d8ba96; height: 100%;"></div>
+								        </div>
+								        <div style="width: 40px; text-align: right; font-weight: bold;">0.70</div>
+								      </div>
+								    
+								      <div style="display: flex; align-items: center; gap: 10px;">
+								        <div style="width: 80px;">Surprise</div>
+								        <div style="flex: 1; background: #f8f7fc; border-radius: 8px; overflow: hidden; height: 16px;">
+								          <div style="width: 0%; background: #c2b6e1; height: 100%;"></div>
+								        </div>
+								        <div style="width: 40px; text-align: right;">0.00</div>
+								      </div>
+								    
+								      
+								    
+								    </div>
+							
+								  </div>
+								  <div style="flex: 1 1 25%; margin: auto;">
+								    <div style="width: 100%;">
+								    	<div style="text-align: center;">Source Speech</div>
+								    	<audio src="./audio/emodist/0_0_d133.wav" controls style="width: 100%;"></audio>
+								    </div>
+								    <div style="width: 100%;">
+								    	<div style="text-align: center;">Speech with Controlled Mixed Emotion</div>
+								  		<audio src="./audio/emodist/愤怒-害怕37-0_0_d133.wav" controls style="width: 100%;"></audio>
+								  	</div>
+								  </div>
+								</div>
+								<!-- 单句话分割 --> 
+								
+								<!-- 单句话分割 -->
+								<span class="note"><b>Sample 5: </b>We are truly blessed. Our bond is unbreakable. </span>
+								<div style="background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 12px; padding: 20px; display: flex; flex-wrap: wrap; box-shadow: 0 2px 6px rgba(0,0,0,0.05); font-family: sans-serif;">
+								  <div style="flex: 1 1 75%; padding-right: 16px;">
+								    <div style="display: grid; grid-template-columns: repeat(1, 1fr); gap: 10px;">
+								      <div style="display: flex; align-items: center; gap: 10px;">
+								        <div style="width: 80px;">Neutral</div>
+								        <div style="flex: 1; background: #f4f4f5; border-radius: 8px; overflow: hidden; height: 16px;">
+								          <div style="width: 0%; background: #b0b4ba; height: 100%;"></div>
+								        </div>
+								        <div style="width: 40px; text-align: right;">0.00</div>
+								      </div>
+									  
+								      <div style="display: flex; align-items: center; gap: 10px;">
+								        <div style="width: 80px;  color: #374151;">Happy</div>
+								        <div style="flex: 1; background: #f5f7f5; border-radius: 8px; overflow: hidden; height: 16px;">
+								          <div style="width: 0%; background: #9bc9b5; height: 100%;"></div>
+								        </div>
+								        <div style="width: 40px; text-align: right; color: #374151;">0.00</div>
+								      </div>
+								    
+								      <div style="display: flex; align-items: center; gap: 10px;">
+								        <div style="width: 80px;">Sad</div>
+								        <div style="flex: 1; background: #f5f7fa; border-radius: 8px; overflow: hidden; height: 16px;">
+								          <div style="width: 0%; background: #a3b9d2; height: 100%;"></div>
+								        </div>
+								        <div style="width: 40px; text-align: right;">0.00</div>
+								      </div>
+								    
+								      <div style="display: flex; align-items: center; gap: 10px;">
+								        <div style="width: 80px;">Anger</div>
+								        <div style="flex: 1; background: #fdf5f4; border-radius: 8px; overflow: hidden; height: 16px;">
+								          <div style="width: 0%; background: #d9a3a0; height: 100%;"></div>
+								        </div>
+								        <div style="width: 40px; text-align: right;">0.00</div>
+								      </div>
+								    
+								      <div style="display: flex; align-items: center; gap: 10px;">
+								        <div style="width: 80px; ">Disgust</div>
+								        <div style="flex: 1; background: #f6f8f5; border-radius: 8px; overflow: hidden; height: 16px;">
+								          <div style="width: 0%; background: #b4c8a7; height: 100%;"></div>
+								        </div>
+								        <div style="width: 40px; text-align: right;">0.00</div>
+								      </div>
+								    
+								      <div style="display: flex; align-items: center; gap: 10px;">
+								        <div style="width: 80px; font-weight: bold;">Fear</div>
+								        <div style="flex: 1; background: #fcf8f2; border-radius: 8px; overflow: hidden; height: 16px;">
+								          <div style="width: 45%; background: #d8ba96; height: 100%;"></div>
+								        </div>
+								        <div style="width: 40px; text-align: right; font-weight: bold;">0.45</div>
+								      </div>
+								    
+								      <div style="display: flex; align-items: center; gap: 10px;">
+								        <div style="width: 80px;  font-weight: bold;">Surprise</div>
+								        <div style="flex: 1; background: #f8f7fc; border-radius: 8px; overflow: hidden; height: 16px;">
+								          <div style="width: 88%; background: #c2b6e1; height: 100%;"></div>
+								        </div>
+								        <div style="width: 40px; text-align: right;  font-weight: bold;">0.88</div>
+								      </div>
+								    
+								      
+								    
+								    </div>
+															
+								  </div>
+								  <div style="flex: 1 1 25%; margin: auto;">
+								    <div style="width: 100%;">
+								    	<div style="text-align: center;">Source Speech</div>
+								    	<audio src="./audio/emodist/3_1_d36.wav" controls style="width: 100%;"></audio>
+								    </div>
+								    <div style="width: 100%;">
+								    	<div style="text-align: center;">Speech with Controlled Mixed Emotion</div>
+								  		<audio src="./audio/emodist/害怕45惊讶88-3_1_d36.wav" controls style="width: 100%;"></audio>
+								  	</div>
+								  </div>
+								</div>
+								<!-- 单句话分割 --> 
+								
+								<!-- 单句话分割 -->
+								<span class="note"><b>Sample 6: </b>I hope they found strength and support to cope with this immense loss. </span>
+								<div style="background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 12px; padding: 20px; display: flex; flex-wrap: wrap; box-shadow: 0 2px 6px rgba(0,0,0,0.05); font-family: sans-serif;">
+								  <div style="flex: 1 1 75%; padding-right: 16px;">
+								    <div style="display: grid; grid-template-columns: repeat(1, 1fr); gap: 10px;">
+								      <div style="display: flex; align-items: center; gap: 10px;">
+								        <div style="width: 80px;">Neutral</div>
+								        <div style="flex: 1; background: #f4f4f5; border-radius: 8px; overflow: hidden; height: 16px;">
+								          <div style="width: 0%; background: #b0b4ba; height: 100%;"></div>
+								        </div>
+								        <div style="width: 40px; text-align: right;">0.00</div>
+								      </div>
+									  
+								      <div style="display: flex; align-items: center; gap: 10px;">
+								        <div style="width: 80px;  color: #374151; font-weight: bold;">Happy</div>
+								        <div style="flex: 1; background: #f5f7f5; border-radius: 8px; overflow: hidden; height: 16px;">
+								          <div style="width: 42%; background: #9bc9b5; height: 100%;"></div>
+								        </div>
+								        <div style="width: 40px; text-align: right; color: #374151; font-weight: bold;">0.42</div>
+								      </div>
+								    
+								      <div style="display: flex; align-items: center; gap: 10px;">
+								        <div style="width: 80px; font-weight: bold;">Sad</div>
+								        <div style="flex: 1; background: #f5f7fa; border-radius: 8px; overflow: hidden; height: 16px;">
+								          <div style="width: 85%; background: #a3b9d2; height: 100%;"></div>
+								        </div>
+								        <div style="width: 40px; text-align: right; font-weight: bold;">0.85</div>
+								      </div>
+								    
+								      <div style="display: flex; align-items: center; gap: 10px;">
+								        <div style="width: 80px; font-weight: bold;">Anger</div>
+								        <div style="flex: 1; background: #fdf5f4; border-radius: 8px; overflow: hidden; height: 16px;">
+								          <div style="width: 24%; background: #d9a3a0; height: 100%;"></div>
+								        </div>
+								        <div style="width: 40px; text-align: right; font-weight: bold;">0.24</div>
+								      </div>
+								    
+								      <div style="display: flex; align-items: center; gap: 10px;">
+								        <div style="width: 80px; ">Disgust</div>
+								        <div style="flex: 1; background: #f6f8f5; border-radius: 8px; overflow: hidden; height: 16px;">
+								          <div style="width: 0%; background: #b4c8a7; height: 100%;"></div>
+								        </div>
+								        <div style="width: 40px; text-align: right;">0.00</div>
+								      </div>
+								    
+								      <div style="display: flex; align-items: center; gap: 10px;">
+								        <div style="width: 80px; ">Fear</div>
+								        <div style="flex: 1; background: #fcf8f2; border-radius: 8px; overflow: hidden; height: 16px;">
+								          <div style="width: 0%; background: #d8ba96; height: 100%;"></div>
+								        </div>
+								        <div style="width: 40px; text-align: right; ">0.00</div>
+								      </div>
+								    
+								      <div style="display: flex; align-items: center; gap: 10px;">
+								        <div style="width: 80px; ">Surprise</div>
+								        <div style="flex: 1; background: #f8f7fc; border-radius: 8px; overflow: hidden; height: 16px;">
+								          <div style="width: 0%; background: #c2b6e1; height: 100%;"></div>
+								        </div>
+								        <div style="width: 40px; text-align: right;">0.00</div>
+								      </div>
+								    
+								      
+								    
+								    </div>
+															
+								  </div>
+								  <div style="flex: 1 1 25%; margin: auto;">
+								    <div style="width: 100%;">
+								    	<div style="text-align: center;">Source Speech</div>
+								    	<audio src="./audio/emodist/6_0_d9.wav" controls style="width: 100%;"></audio>
+								    </div>
+								    <div style="width: 100%;">
+								    	<div style="text-align: center;">Speech with Controlled Mixed Emotion</div>
+								  		<audio src="./audio/emodist/开心42伤心85-6_0_d9.wav" controls style="width: 100%;"></audio>
+								  	</div>
+								  </div>
+								</div>
+								<!-- 单句话分割 --> 
+								
+								<!-- 单句话分割 -->
+								<span class="note"><b>Sample 7: </b>Oh my God. Have you tried the new ice cream flavor? It's absolutely amazing. </span>
+								<div style="background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 12px; padding: 20px; display: flex; flex-wrap: wrap; box-shadow: 0 2px 6px rgba(0,0,0,0.05); font-family: sans-serif;">
+								  <div style="flex: 1 1 75%; padding-right: 16px;">
+								    <div style="display: grid; grid-template-columns: repeat(1, 1fr); gap: 10px;">
+								      <div style="display: flex; align-items: center; gap: 10px;">
+								        <div style="width: 80px; font-weight: bold;">Neutral</div>
+								        <div style="flex: 1; background: #f4f4f5; border-radius: 8px; overflow: hidden; height: 16px;">
+								          <div style="width: 12%; background: #b0b4ba; height: 100%;"></div>
+								        </div>
+								        <div style="width: 40px; text-align: right; font-weight: bold;">0.12</div>
+								      </div>
+									  
+								      <div style="display: flex; align-items: center; gap: 10px;">
+								        <div style="width: 80px;  color: #374151;">Happy</div>
+								        <div style="flex: 1; background: #f5f7f5; border-radius: 8px; overflow: hidden; height: 16px;">
+								          <div style="width: 0%; background: #9bc9b5; height: 100%;"></div>
+								        </div>
+								        <div style="width: 40px; text-align: right; color: #374151;">0.00</div>
+								      </div>
+								    
+								      <div style="display: flex; align-items: center; gap: 10px;">
+								        <div style="width: 80px; font-weight: bold;">Sad</div>
+								        <div style="flex: 1; background: #f5f7fa; border-radius: 8px; overflow: hidden; height: 16px;">
+								          <div style="width: 50%; background: #a3b9d2; height: 100%;"></div>
+								        </div>
+								        <div style="width: 40px; text-align: right; font-weight: bold;">0.50</div>
+								      </div>
+								    
+								      <div style="display: flex; align-items: center; gap: 10px;">
+								        <div style="width: 80px;">Anger</div>
+								        <div style="flex: 1; background: #fdf5f4; border-radius: 8px; overflow: hidden; height: 16px;">
+								          <div style="width: 0%; background: #d9a3a0; height: 100%;"></div>
+								        </div>
+								        <div style="width: 40px; text-align: right;">0.00</div>
+								      </div>
+								    
+								      <div style="display: flex; align-items: center; gap: 10px;">
+								        <div style="width: 80px; ">Disgust</div>
+								        <div style="flex: 1; background: #f6f8f5; border-radius: 8px; overflow: hidden; height: 16px;">
+								          <div style="width: 0%; background: #b4c8a7; height: 100%;"></div>
+								        </div>
+								        <div style="width: 40px; text-align: right;">0.00</div>
+								      </div>
+								    
+								      <div style="display: flex; align-items: center; gap: 10px;">
+								        <div style="width: 80px; font-weight: bold;">Fear</div>
+								        <div style="flex: 1; background: #fcf8f2; border-radius: 8px; overflow: hidden; height: 16px;">
+								          <div style="width: 82%; background: #d8ba96; height: 100%;"></div>
+								        </div>
+								        <div style="width: 40px; text-align: right; font-weight: bold;">0.82</div>
+								      </div>
+								    
+								      <div style="display: flex; align-items: center; gap: 10px;">
+								        <div style="width: 80px; ">Surprise</div>
+								        <div style="flex: 1; background: #f8f7fc; border-radius: 8px; overflow: hidden; height: 16px;">
+								          <div style="width: 0%; background: #c2b6e1; height: 100%;"></div>
+								        </div>
+								        <div style="width: 40px; text-align: right;">0.00</div>
+								      </div>
+								    
+								    </div>
+															
+								  </div>
+								  <div style="flex: 1 1 25%; margin: auto;">
+								    <div style="width: 100%;">
+								    	<div style="text-align: center;">Source Speech</div>
+								    	<audio src="./audio/emodist/0_0_d40.wav" controls style="width: 100%;"></audio>
+								    </div>
+								    <div style="width: 100%;">
+								    	<div style="text-align: center;">Speech with Controlled Mixed Emotion</div>
+								  		<audio src="./audio/emodist/伤心50害怕82-0_0_d40.wav" controls style="width: 100%;"></audio>
+								  	</div>
+								  </div>
+								</div>
+								<!-- 单句话分割 --> 
+							</div>
+						</div>
+					</div>
+				</div>
+								
+			</div>
+		</div>
+		
+		
+	</body>
+</html>
