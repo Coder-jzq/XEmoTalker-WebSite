@@ -212,11 +212,11 @@
 						<strong>Comparative Experiment:</strong>
 						</br> 1) <b>BaseCSS</b> introduces a text coarse-grained context encoder to model the dialogue history, aiming to improve the quality of synthesized speech. <a href="https://ieeexplore.ieee.org/abstract/document/9383460" style="color: #1d5da4;">[PAPER]</a>
 						</br> 2) <b>M²-CTTS</b> proposes a multi-scale, multi-modal context encoder to jointly model both coarse-grained and fine-grained features of the text and speech modalities in multimodal dialogue history, aiming to enhance the prosody of synthesized speech. <a href="https://ieeexplore.ieee.org/abstract/document/10096905" style="color: #1d5da4;">[PAPER]</a>
-						</br> 3) <b>CONCSS</b> incorporates a negative sample enhancement sampling strategy into multimodal dialogue history modeling to improve the interpretability and prosody sensitivity of context representations, thereby enhancing the prosodic expressiveness of synthesized speech. <a href="xxx" style="color: #1d5da4;">[PAPER]</a>
-						</br> 4) <b>MSRGCN-CSS</b> introduces a context modeling scheme based on a multi-scale relational graph convolutional network to capture the multi-scale influences of multimodal dialogue history on speaking style, aiming to enhance the speaking style of synthesized speech. <a href="xxx" style="color: #1d5da4;">[PAPER]</a>
-						</br> 5) <b>ECSS</b> introduces a context modeling scheme based on multi-source knowledge heterogeneous graphs to jointly model speech, text, emotion, emotion intensity, and speaker attributes in dialogue history, enhancing the emotional prediction for target utterances and improving the emotional expressiveness of synthesized speech. <a href="xxx" style="color: #1d5da4;">[PAPER]</a>
-						</br> 6) <b>I³-CSS</b> proposes an utterance-level intra-modal and inter-modal context interaction modeling scheme to learn both intra-modal and inter-modal interactions between the semantics and prosody of multimodal dialogue history and those of the target utterance, aiming to improve the prosody performance of synthesized speech. <a href="xxx" style="color: #1d5da4;">[PAPER]</a>
-						<strong style="color:#d9534f;">Note:</strong> 我们在分别在两个英文数据集xxx，一个中文数据集比较xxx。
+						</br> 3) <b>CONCSS</b> incorporates a negative sample enhancement sampling strategy into multimodal dialogue history modeling to improve the interpretability and prosody sensitivity of context representations, thereby enhancing the prosodic expressiveness of synthesized speech. <a href="https://ieeexplore.ieee.org/abstract/document/10446506" style="color: #1d5da4;">[PAPER]</a>
+						</br> 4) <b>MSRGCN-CSS</b> introduces a context modeling scheme based on a multi-scale relational graph convolutional network to capture the multi-scale influences of multimodal dialogue history on speaking style, aiming to enhance the speaking style of synthesized speech. <a href="https://dl.acm.org/doi/abs/10.1145/3503161.3547831" style="color: #1d5da4;">[PAPER]</a>
+						</br> 5) <b>ECSS</b> introduces a context modeling scheme based on multi-source knowledge heterogeneous graphs to jointly model speech, text, emotion, emotion intensity, and speaker attributes in dialogue history, enhancing the emotional prediction for target utterances and improving the emotional expressiveness of synthesized speech. <a href="https://ojs.aaai.org/index.php/AAAI/article/view/29833" style="color: #1d5da4;">[PAPER]</a>
+						</br> 6) <b>I³-CSS</b> proposes an utterance-level intra-modal and inter-modal context interaction modeling scheme to learn both intra-modal and inter-modal interactions between the semantics and prosody of multimodal dialogue history and those of the target utterance, aiming to improve the prosody performance of synthesized speech. <a href="https://ieeexplore.ieee.org/abstract/document/10890216" style="color: #1d5da4;">[PAPER]</a>
+						<!-- <strong style="color:#d9534f;">Note:</strong> 我们在分别在两个英文数据集xxx，一个中文数据集比较xxx。 -->
 						
 					</div>
 					<div class="section-content ">
@@ -229,7 +229,7 @@
 								  <span style="float: right; color: #6b7280;">(Source: DailyTalk)</span>
 								</span>
 								<!-- 情感 - s -->
-								<p class="emo-title">EmoDist</p>
+								<p class="emo-title">XEmoDist</p>
 								<div class="emo-container">	
 								  <div class="emo-row">
 								    <!-- 一个块代表一个情感 -->
@@ -380,7 +380,7 @@
 								<span class="note"><b>Sample 2: </b>I'd like to, but I have to meet my parents in an hour for dinner. How about tomorrow? <span style="float: right; color: #6b7280;">(Source: DailyTalk)</span></span>
 								
 								<!-- 情感 - s -->
-								<p class="emo-title">EmoDist</p>
+								<p class="emo-title">XEmoDist</p>
 								<div class="emo-container">	
 								  <div class="emo-row">
 								    <!-- 一个块代表一个情感 -->
@@ -536,7 +536,7 @@
 								<span class="note"><b>Sample 3: </b>I can't help but feel a bit scared too. <span style="float: right; color: #6b7280;">(Source: NCSSD-EN)</span></span>
 								
 								<!-- 情感 - s -->
-								<p class="emo-title">EmoDist</p>
+								<p class="emo-title">XEmoDist</p>
 								<div class="emo-container">	
 								  <div class="emo-row">
 								    <!-- 一个块代表一个情感 -->
@@ -683,7 +683,7 @@
 							<div class="module-content">
 								<span class="note"><b>Sample 4: </b>I know, right? It's such a game changer. Our school is really keeping up with the latest technology trends in education. I'm so glad we have this resource now.  <span style="float: right; color: #6b7280;">(Source: NCSSD-EN)</span></span>
 								<!-- 情感 - s -->
-								<p class="emo-title">EmoDist</p>
+								<p class="emo-title">XEmoDist</p>
 								<div class="emo-container">	
 								  <div class="emo-row">
 								    <!-- 一个块代表一个情感 -->
@@ -837,7 +837,7 @@
 								<span class="note"><b>Sample 5: </b>为什么生气呢？(Why are you angry?)  <span style="float: right; color: #6b7280;">(Source: NCSSD-ZH)</span></span>
 								
 								<!-- 情感 - s -->
-								<p class="emo-title">EmoDist</p>
+								<p class="emo-title">XEmoDist</p>
 								<div class="emo-container">	
 								  <div class="emo-row">
 								    <!-- 一个块代表一个情感 -->
@@ -987,7 +987,7 @@
 								<span class="note"><b>Sample 6: </b>没错，这种款式我以前从来没见过，很有创意。(That's right, I've never seen this kind of style before. It's very creative.) <br/> &nbsp; <span style="float: right; color: #6b7280;">(Source: NCSSD-ZH)</span></span>
 								
 								<!-- 情感 - s -->
-								<p class="emo-title">EmoDist</p>
+								<p class="emo-title">XEmoDist</p>
 								<div class="emo-container">	
 								  <div class="emo-row">
 								    <!-- 一个块代表一个情感 -->
